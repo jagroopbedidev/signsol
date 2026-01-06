@@ -1,0 +1,1605 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Signsol Design</title>
+
+<!-- Remix Icons -->
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800;900&display=swap" rel="stylesheet">
+
+<!-- GSAP -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+
+<!-- Lenis (Smooth Scroll) -->
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+
+<!-- =========================================================
+  STYLES
+========================================================= -->
+<style>
+/* =========================================================
+   ROOT + RESET
+========================================================= */
+:root{
+  /* --- Global / Dark Theme (Snippet 1 & 3) --- */
+  --text: rgba(255,255,255,.95);
+  --muted: rgba(255,255,255,.72);
+  --line: rgba(255,255,255,.22);
+  --shadow: 0 12px 30px rgba(0,0,0,.25);
+  --dark: #0a0c12;
+
+  /* --- Light Theme (Snippet 2 - Stack Cards) --- */
+  --s2-text:#0f172a;
+  --s2-muted:#475569;
+  --s2-sky:#e6f3fb;
+  --s2-border:#0f172a;
+  --s2-radius:28px;
+  --s2-shadowA:0 22px 60px rgba(0,0,0,.18);
+  --s2-overlap:46px;
+  --s2-cardHeight:320px;
+  --s2-sliderBG:var(--s2-sky);
+
+  /* --- Brand Section (Snippet 3) --- */
+  --overlay: rgba(8,10,14,0.82);
+  --brand-border: rgba(255,255,255,0.14);
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+html{
+  /* Lenis handles smooth scroll */
+  scroll-behavior: auto;
+  overflow-x: hidden;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+body{
+  font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  background:#000;
+  color:var(--text);
+  overflow-x:hidden;
+}
+
+body.no-scroll{
+  overflow:hidden;
+}
+
+/* =========================================================
+   CUSTOM CURSOR
+========================================================= */
+.cursor-dot, .cursor-circle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  display: none; /* Hidden by default, shown via JS on desktop */
+}
+@media (pointer: fine) {
+  .cursor-dot, .cursor-circle { display: block; }
+  body, a, button, .panel, .brand-card { cursor: none; }
+}
+.cursor-dot { width: 8px; height: 8px; background: white; mix-blend-mode: difference; }
+.cursor-circle { width: 40px; height: 40px; border: 1px solid white; mix-blend-mode: difference; transition: width 0.3s, height 0.3s, background-color 0.3s; }
+.cursor-circle.active {
+  width: 64px; height: 64px; background-color: rgba(255, 255, 255, 0.3); border-color: transparent;
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+.nav{
+  position:fixed;
+  inset:0 0 auto 0;
+  z-index:40;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:18px 22px;
+  background:linear-gradient(to bottom, rgba(0,0,0,.45), rgba(0,0,0,0));
+  transition: transform 0.4s ease, background 0.4s ease;
+}
+
+/* Hidden state for scroll logic */
+.nav.nav-hidden {
+  transform: translateY(-100%);
+}
+
+/* Scrolled state (Solid BG) */
+.nav.scrolled {
+  background: rgba(10, 12, 18, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.nav__left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.brand{
+  display:flex;
+  align-items:center;
+  text-decoration:none;
+}
+
+.brand__logo{
+  height:26px;
+  filter:drop-shadow(0 10px 20px rgba(0,0,0,.35));
+}
+
+.menu--desktop{
+  display:flex;
+  gap:10px;
+}
+
+/* =========================================================
+   BUTTONS (Global)
+========================================================= */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:11px 16px;
+  border-radius:999px;
+  font-weight:800;
+  font-size:14px;
+  text-decoration:none;
+  border:1px solid var(--line);
+  transition:.18s ease;
+  color: #fff;
+}
+
+.btn:hover{
+  background:orange;
+  border-color:#000;
+  color:#fff;
+  transform:translateY(-1px);
+  box-shadow:var(--shadow);
+}
+
+.btn--ghost{
+  background:rgba(0,0,0,.28);
+  color:#fff;
+}
+
+.btn--solid{
+  background:#fff;
+  color:#111;
+}
+
+.btn--lg{
+  padding:13px 18px;
+}
+
+/* =========================================================
+   HAMBURGER & SIDEBAR
+========================================================= */
+.hamburger{
+  border:0;
+  background:none;
+  color:#fff;
+  cursor:pointer;
+  padding:6px;
+}
+
+.hamburger i{
+  font-size:26px;
+}
+
+.sidebar{
+  position:fixed;
+  top:0;
+  left:0;
+  height:100%;
+  width:min(380px,100vw);
+  background:rgba(5, 5, 5, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right:1px solid rgba(255,255,255,.08);
+  box-shadow:0 30px 90px rgba(0,0,0,.45);
+  z-index:60;
+  transform:translateX(-105%);
+  transition:transform .4s cubic-bezier(0.16, 1, 0.3, 1);
+  display:flex;
+  flex-direction:column;
+  padding:40px 32px;
+}
+
+.sidebar.open{
+  transform:translateX(0);
+}
+
+.sidebar__top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding-bottom:30px;
+  margin-bottom: 20px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+
+.sidebar__brand{
+  font-weight:700;
+  letter-spacing:.1em;
+  font-size:14px;
+  text-transform: uppercase;
+}
+
+.sidebar__close{
+  width:36px;
+  height:36px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.1);
+  background:transparent;
+  color:#fff;
+  cursor:pointer;
+  transition: .2s;
+}
+
+.sidebar__close:hover{
+  background: #fff;
+  color: #000;
+}
+
+.sidebar__links{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  padding:0;
+}
+
+.slink{
+  text-decoration:none;
+  color:rgba(255,255,255,0.65);
+  font-weight:500;
+  font-size: 28px;
+  padding:10px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
+  transition: all 0.3s ease;
+}
+
+.slink:hover{
+  color: #fff;
+  padding-left: 12px;
+}
+
+.sidebar__cta{
+  margin-top:auto;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:55;
+  opacity:0;
+  pointer-events:none;
+  transition:.25s ease;
+}
+
+.backdrop.show{
+  opacity:1;
+  pointer-events:auto;
+}
+
+/* =========================================================
+   HERO (Video)
+========================================================= */
+.hero{
+  position:relative;
+  min-height:100vh;
+}
+
+.hero__video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  z-index:-3;
+}
+
+.hero__overlay{
+  position:absolute;
+  inset:0;
+  z-index:-2;
+  background:linear-gradient(
+    to bottom,
+    rgba(0,0,0,.4),
+    rgba(0,0,0,.1) 45%,
+    rgba(0,0,0,.35)
+  );
+}
+
+.hero__content{
+  position:absolute;
+  left:22px;
+  bottom:56px;
+  max-width:720px;
+}
+
+.hero__title{
+  font-weight:950;
+  font-size:clamp(38px,4.8vw,76px);
+  line-height:1.05;
+}
+
+.hero__subtitle{
+  color:var(--muted);
+  margin:14px 0 20px;
+}
+
+.hero__cta{
+  display:flex;
+  gap:12px;
+}
+
+/* =========================================================
+   ABOUT SECTION
+========================================================= */
+.about-section{
+  position:relative;
+  min-height:100vh;
+  padding:6rem 1.5rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:linear-gradient(
+    180deg,
+    #e0f2fe 0%,
+    #f0f9ff 100%
+  );
+  color:#111;
+}
+
+/* CSS Shape Clouds */
+.cloud{
+  position:absolute;
+  background:#fff;
+  border-radius:100px;
+  filter:blur(1px);
+  opacity:.85;
+}
+
+.cloud::before,
+.cloud::after{
+  content:"";
+  position:absolute;
+  background:#fff;
+  border-radius:50%;
+}
+
+.cloud-1{ width:260px; height:80px; top:15%; left:-300px; }
+.cloud-1::before{ width:120px; height:120px; top:-60px; left:40px; }
+.cloud-1::after{ width:160px; height:160px; top:-80px; right:30px; }
+
+.cloud-2{ width:340px; height:100px; top:35%; left:-400px; opacity:.7; }
+.cloud-2::before{ width:150px; height:150px; top:-70px; left:50px; }
+.cloud-2::after{ width:190px; height:190px; top:-90px; right:40px; }
+
+.cloud-3{ width:220px; height:70px; top:60%; left:-260px; opacity:.6; }
+.cloud-3::before{ width:110px; height:110px; top:-55px; left:30px; }
+.cloud-3::after{ width:140px; height:140px; top:-70px; right:25px; }
+
+.about-container{
+  position:relative;
+  z-index:2;
+  max-width:1100px;
+  text-align:center;
+}
+
+.about-badge{
+  display:inline-block;
+  padding:.5rem 1.2rem;
+  border-radius:999px;
+  background:rgba(0,0,0,.05);
+  font-size:.85rem;
+  margin-bottom:1.6rem;
+}
+
+.about-title{
+  font-size:clamp(2.6rem,5vw,4.5rem);
+  font-weight:600;
+  line-height:1.1;
+}
+
+.about-title span{ font-weight:700; }
+
+.about-description{
+  margin-top:1.9rem;
+  font-size:clamp(1rem,1.4vw,1.15rem);
+  line-height:1.75;
+  color:#444;
+  max-width:880px;
+  margin-inline:auto;
+}
+
+.about-cta{ margin-top:3.2rem; }
+
+.about-btn{
+  display:inline-flex;
+  align-items:center;
+  gap:.7rem;
+  padding:1rem 2rem;
+  border-radius:999px;
+  background:#111;
+  color:#fff;
+  text-decoration:none;
+  font-size:.95rem;
+  transition:.3s ease;
+}
+
+.about-btn:hover{
+  transform:translateY(-4px);
+  box-shadow:0 14px 30px rgba(0,0,0,.2);
+}
+
+/* =========================================================
+  STACK CARD SECTION (Snippet 2)
+========================================================= */
+.core-hero{
+  position:relative;
+  min-height:85vh;
+  display:grid;
+  place-items:center;
+  padding:clamp(40px,6vw,100px) 18px;
+  overflow:hidden;
+  background:var(--s2-sky);
+  color:var(--s2-text);
+}
+
+/* ---------------- Fog Clouds (Renamed from .cloud to .fog-cloud) ---------------- */
+.fog-clouds{
+  position:absolute;
+  inset:-40px;
+  z-index:0;
+  opacity:.55;
+}
+
+.fog-cloud{
+  position:absolute;
+  width:520px;
+  height:240px;
+  border-radius:999px;
+  background:
+    radial-gradient(circle at 25% 55%, rgba(255,255,255,.9), transparent 60%),
+    radial-gradient(circle at 55% 45%, rgba(255,255,255,.7), transparent 62%);
+  filter:blur(24px);
+}
+
+.fog-cloud.c1{ top:8%; left:4%; }
+.fog-cloud.c2{ top:18%; right:6%; }
+.fog-cloud.c3{ bottom:10%; left:20%; }
+.fog-cloud.c4{ bottom:6%; right:16%; }
+.fog-cloud.c5{ top:42%; left:46%; opacity:.35; }
+
+/* ---------------- Hero Inner ---------------- */
+.hero-inner{
+  position:relative;
+  z-index:2;
+  width:min(1040px,100%);
+  text-align:center;
+}
+
+.hero-title{
+  font-weight:300;
+  letter-spacing:-0.02em;
+  line-height:1.05;
+  font-size:clamp(36px,6vw,86px);
+  margin-bottom:20px;
+}
+
+.hero-title span{ display:block; }
+
+.choose-label{
+  margin-bottom:32px;
+  font-size:13px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--s2-muted);
+  font-weight:800;
+}
+
+/* =========================================================
+  STACK CARD SLIDER
+========================================================= */
+.panel-slider{
+  position:relative;
+  width:min(980px,100%);
+  height:var(--s2-cardHeight);
+  margin-inline:auto;
+}
+
+.panel{
+  position:absolute;
+  inset:0 auto 0 0;
+  border:2px solid var(--s2-border);
+  border-radius:var(--s2-radius);
+  background:#fff;
+  overflow:hidden;
+  box-shadow:var(--s2-shadowA);
+  cursor:pointer;
+  will-change:transform,width;
+  transition:transform .35s ease;
+}
+
+.panel:hover{ transform:translateY(-4px); }
+
+.panel:nth-child(1){z-index:3;}
+.panel:nth-child(2){z-index:2;}
+.panel:nth-child(3){z-index:1;}
+
+/* ---------------- Panel BG ---------------- */
+.panel-bg{
+  position:absolute;
+  inset:0;
+  background-image:var(--img);
+  background-size:cover;
+  background-position:center;
+  opacity:.28;
+  filter:blur(6px);
+  transform:scale(1.08);
+}
+
+.panel-bg::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.7),
+    rgba(255,255,255,.5)
+  );
+}
+
+/* ---------------- Panel Content ---------------- */
+.panel-content{
+  position:relative;
+  z-index:2;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color: var(--s2-text);
+}
+
+.panel-title{
+  font-weight:900;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-size:clamp(18px,2.5vw,34px);
+  transform-origin:center;
+  transition:
+    transform .45s ease,
+    letter-spacing .45s ease,
+    opacity .45s ease;
+}
+
+.panel-btn{
+  position:absolute;
+  right:18px;
+  bottom:18px;
+  padding:10px 20px;
+  border-radius:14px;
+  border:2px solid #0f172a;
+  background:#0f172a;
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  transition:.3s;
+}
+
+.panel-btn:hover{
+  background:#fff;
+  color:#0f172a;
+}
+
+/* =========================================================
+  CATEGORY SLIDER
+========================================================= */
+.category-section{
+  display:none;
+  background:var(--s2-sliderBG);
+  padding:26px;                     /* halo outside radius */
+}
+
+/* outer halo shell */
+.slider-shell{
+  background:var(--s2-sliderBG);
+  padding:18px;
+  border-radius:36px;
+}
+
+/* actual slider container */
+.slider-frame{
+  width:100%;
+  height:86vh;                      /* thodi si kam, cinematic */
+  background:var(--s2-sky);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius:28px;
+  overflow:hidden;
+}
+
+/* slider */
+.slider{
+  display:flex;
+  gap:24px;
+  height:100%;
+  padding:0 6vw;
+  will-change:transform;
+}
+
+/* slide */
+.slide{
+  flex:0 0 85vw;
+  height:100%;
+  border-radius:24px;
+  overflow:hidden;
+  position:relative;
+  cursor:pointer;
+}
+
+.slide img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.slide::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    90deg,
+    rgba(0,0,0,.55),
+    rgba(0,0,0,.15)
+  );
+}
+
+.slide-label{
+  position:absolute;
+  left:32px;
+  bottom:32px;
+  color:#fff;
+  font-size:32px;
+  font-weight:800;
+  max-width:520px;
+}
+
+/* counter */
+.slide-counter{
+  position:absolute;
+  bottom:18px;
+  right:18px;
+  background:rgba(0,0,0,.45);
+  padding:12px 20px;
+  border-radius:12px;
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.12em;
+}
+
+/* =========================================================
+  BRAND SECTION (Snippet 3)
+========================================================= */
+.brand-section {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  color: #f2f2f2;
+}
+
+/* BACKGROUNDS */
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.bg-layer.active { opacity: 1; }
+
+.bg-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--overlay), var(--overlay));
+  z-index: 2;
+}
+
+/* CONTENT */
+.brand-content {
+  position: relative;
+  z-index: 3;
+  max-width: 1440px;
+  margin: auto;
+  padding: 120px 64px 90px;
+}
+
+.brand-tagline {
+  text-align: center;
+  font-size: 18px;
+  color: rgba(255,255,255,0.75);
+  margin-bottom: 28px;
+}
+
+.brand-title {
+  text-align: center;
+  font-weight: 500;
+  font-size: clamp(48px, 6vw, 88px);
+  line-height: 1.05;
+  margin-bottom: 80px;
+  color: #fff;
+}
+
+/* GRID */
+.brand-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(2, 150px);
+  border-top: 1px solid var(--brand-border);
+  border-left: 1px solid var(--brand-border);
+}
+
+.brand-card {
+  border-right: 1px solid var(--brand-border);
+  border-bottom: 1px solid var(--brand-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(255,255,255,0.02);
+  transition: background 0.4s ease;
+}
+
+.brand-card.active {
+  background: rgba(255,255,255,0.16);
+}
+
+.brand-card img {
+  max-width: 140px;
+  max-height: 60px;
+  filter: brightness(0) invert(1);
+  opacity: 0.9;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.brand-card:hover img {
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+.ssd-footer {
+  background: #e0f2fe;
+  padding: 90px 60px 30px;
+  color: #0b1f33;
+}
+
+.footer-container {
+  max-width: 1400px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.footer-left { max-width: 420px; }
+
+.footer-logo { width: 210px; margin-bottom: 35px; }
+
+.footer-tagline {
+  font-size: 28px;
+  font-weight: 500;
+  margin-bottom: 22px;
+}
+
+.footer-credit {
+  font-size: 14px;
+  opacity: 0.7;
+  margin-bottom: 28px;
+}
+
+.footer-socials a {
+  margin-right: 16px;
+  font-size: 14px;
+  text-decoration: none;
+  color: #0b1f33;
+  font-weight: 500;
+  transition: opacity 0.3s ease;
+}
+
+.footer-socials a:hover { opacity: 0.6; }
+
+.footer-links {
+  list-style: none;
+  text-align: right;
+}
+
+.footer-links li { margin-bottom: 20px; }
+
+.footer-links a {
+  font-size: 24px;
+  font-weight: 500;
+  text-decoration: none;
+  color: #0b1f33;
+  position: relative;
+}
+
+.footer-links a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 0;
+  height: 2px;
+  background: #ff6a00;
+  transition: width 0.35s ease;
+}
+
+.footer-links a:hover::after { width: 100%; }
+
+.footer-bottom {
+  margin-top: 70px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0,0,0,0.1);
+  text-align: center;
+  font-size: 13px;
+  opacity: 0.6;
+}
+
+/* =========================================================
+  RESPONSIVE
+========================================================= */
+@media(max-width:900px){
+  .menu--desktop{ display:none; }
+  .hero__content{
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+  }
+  .hero__cta{ justify-content:center; }
+  
+  .footer-container {
+    flex-direction: column;
+    gap: 60px;
+  }
+  .footer-links { text-align: left; }
+  .footer-links a { font-size: 20px; }
+  
+  .brand-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto;
+  }
+  .brand-card {
+    padding: 30px 10px;
+    height: 140px;
+  }
+}
+
+@media(max-width:600px){
+  .brand-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width:1024px){
+  .slider-frame{ height:82vh; }
+  .slide{ flex-basis:90vw; }
+}
+
+@media (max-width:768px){
+  .panel-slider{ 
+    height: auto; 
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .panel {
+    position: relative;
+    width: 100% !important;
+    height: 300px;
+    transform: none !important;
+    inset: auto !important;
+    opacity: 1 !important;
+  }
+  .panel-bg {
+    opacity: 0.5 !important;
+    filter: blur(0) !important;
+    transform: scale(1) !important;
+  }
+  .panel-title {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    letter-spacing: .12em !important;
+  }
+
+  .slider-frame{ height:60vh; }
+  .slide-label{ font-size:26px; }
+}
+
+@media (max-width:480px){
+  .slider-frame{ height:72vh; }
+  .slide-label{ font-size:22px; }
+  .panel-btn{
+    right:12px;
+    bottom:12px;
+    padding:8px 16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- CURSOR -->
+<div class="cursor-dot"></div>
+<div class="cursor-circle"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar__top">
+    <div class="sidebar__brand">SIGNSOL DESIGN</div>
+    <button class="sidebar__close" id="closeBtn">✕</button>
+  </div>
+
+  <nav class="sidebar__links">
+    <a href="#top" class="slink">Home</a>
+    <a href="#projects" class="slink">Projects</a>
+    <a href="#services" class="slink">Services</a>
+    <a href="#about" class="slink">About</a>
+    <a href="#contact" class="slink">Contact</a>
+  </nav>
+
+  <div class="sidebar__cta">
+    <a class="btn btn--ghost btn--lg" href="#projects">View Project</a>
+    <a class="btn btn--solid btn--lg" href="#meeting">Have a Meeting</a>
+  </div>
+</aside>
+
+<div class="backdrop" id="backdrop"></div>
+
+<!-- NAV -->
+<header class="nav" id="top">
+  <div class="nav__left">
+    <button class="hamburger" id="menuBtn">
+      <i class="ri-menu-5-fill"></i>
+    </button>
+    <a class="brand" href="#top">
+      <img src="assets/logo.png" class="brand__logo" alt="Logo">
+    </a>
+  </div>
+
+  <nav class="menu--desktop">
+    <a class="btn btn--ghost" href="#projects">View Project</a>
+    <a class="btn btn--solid" href="#meeting">Have a Meeting</a>
+  </nav>
+</header>
+
+<!-- =========================================================
+  HERO (Video)
+========================================================= -->
+<main class="hero">
+  <video class="hero__video" autoplay muted loop playsinline>
+    <source src="assets/bg.mp4" type="video/mp4">
+  </video>
+  <div class="hero__overlay"></div>
+
+  <section class="hero__content">
+    <h1 class="hero__title" id="heroTitle">Bold Ideas. Clean Design.</h1>
+    <p class="hero__subtitle" id="heroSubtitle">
+      A simple, modern hero with video background.
+    </p>
+    <div class="hero__cta">
+      <a class="btn btn--ghost btn--lg" href="#projects">View Project</a>
+      <a class="btn btn--solid btn--lg" href="#meeting">Have a Meeting</a>
+    </div>
+  </section>
+</main>
+
+<!-- =========================================================
+  ABOUT
+========================================================= -->
+<section class="about-section" id="about">
+  <div class="cloud cloud-1"></div>
+  <div class="cloud cloud-2"></div>
+  <div class="cloud cloud-3"></div>
+
+  <div class="about-container">
+    <div class="about-badge">About Signs & Design</div>
+
+    <h1 class="about-title">
+      We design, build, and install<br>
+      <span class="split-text">high-impact signage solutions</span>
+    </h1>
+
+    <p class="about-description">
+      Signs & Design is a full-service signage company delivering custom indoor
+      and outdoor signs, brand environments, and architectural graphics.
+      From concept to installation, we help businesses stand out with precision,
+      durability, and visual clarity.
+    </p>
+
+    <div class="about-cta">
+      <a href="#services" class="about-btn">
+        Explore Our Services
+        <i class="ri-arrow-right-up-line"></i>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+  STACK CARDS (Services)
+========================================================= -->
+<section class="core-hero" id="services">
+  <div class="fog-clouds">
+    <span class="fog-cloud c1"></span>
+    <span class="fog-cloud c2"></span>
+    <span class="fog-cloud c3"></span>
+    <span class="fog-cloud c4"></span>
+    <span class="fog-cloud c5"></span>
+  </div>
+
+  <div class="hero-inner">
+    <h1 class="hero-title">
+      Empowering Your Vision
+      <span>with Our Core Values</span>
+    </h1>
+
+    <p class="choose-label">Choose your design</p>
+
+    <div class="panel-slider" id="panelSlider">
+
+      <article class="panel" data-category="wayfinding"
+        style="--img:url('https://images.unsplash.com/photo-1526481280695-3c687fd643ed')">
+        <div class="panel-bg"></div>
+        <div class="panel-content">
+          <h3 class="panel-title">Wayfinding</h3>
+          <button class="panel-btn">View</button>
+        </div>
+      </article>
+
+      <article class="panel" data-category="experiential"
+        style="--img:url('https://images.unsplash.com/photo-1520975958225-3f61f107b07f')">
+        <div class="panel-bg"></div>
+        <div class="panel-content">
+          <h3 class="panel-title">Experiential Design</h3>
+          <button class="panel-btn">View</button>
+        </div>
+      </article>
+
+      <article class="panel" data-category="art"
+        style="--img:url('https://images.unsplash.com/photo-1545239351-1141bd82e8a6')">
+        <div class="panel-bg"></div>
+        <div class="panel-content">
+          <h3 class="panel-title">Art Installations</h3>
+          <button class="panel-btn">View</button>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+  SLIDER
+========================================================= -->
+<section class="category-section" id="categorySection">
+  <div class="slider-shell">
+    <div class="slider-frame">
+      <div class="slider" id="slider"></div>
+      <div class="slide-counter" id="counter">1 | 1</div>
+    </div>
+  </div>
+</section>
+
+<!-- =========================================================
+  BRAND SECTION
+========================================================= -->
+<section class="brand-section" id="projects">
+  <div class="bg-layer active" id="initialBg"
+    style="background-image:url('https://images.unsplash.com/photo-1518770660439-4636190af475')">
+  </div>
+
+  <div id="bgContainer"></div>
+  <div class="bg-overlay"></div>
+
+  <div class="brand-content">
+    <p class="brand-tagline">
+      Explore & play in games & immersive worlds brought to you by your favorite brands
+    </p>
+
+    <h1 class="brand-title">
+      Discover Brands<br/>
+      Building On spatial.io
+    </h1>
+
+    <div class="brand-grid" id="brandGrid"></div>
+  </div>
+</section>
+
+<!-- =========================================================
+  FOOTER
+========================================================= -->
+<footer class="ssd-footer" id="contact">
+  <div class="footer-container">
+
+    <div class="footer-left">
+      <img src="./SIGNSOL-LOGO-new.png" alt="Signs O Design Logo" class="footer-logo animate-text">
+
+      <p class="footer-tagline animate-text">
+        Values For Business
+      </p>
+
+      <p class="footer-credit animate-text">
+        Designed & Developed by <strong>Signs O Design</strong>
+      </p>
+
+      <div class="footer-socials animate-text">
+        <a href="#">IG</a>
+        <a href="#">IN</a>
+        <a href="#">BE</a>
+      </div>
+    </div>
+
+    <div class="footer-right">
+      <ul class="footer-links">
+        <li class="animate-link"><a href="#">Order Now</a></li>
+        <li class="animate-link"><a href="#">Ordering Process</a></li>
+        <li class="animate-link"><a href="#">Explore Products</a></li>
+        <li class="animate-link"><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    © 2026 Signs O Design. All rights reserved.
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+/* =========================================================
+   LENIS SMOOTH SCROLL
+========================================================= */
+{
+  const lenis = new Lenis();
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time)=>{
+    lenis.raf(time * 1000);
+  });
+  gsap.ticker.lagSmoothing(0);
+  
+  // Expose lenis to window for other functions
+  window.lenis = lenis;
+}
+
+/* =========================================================
+   CUSTOM CURSOR LOGIC
+========================================================= */
+{
+  const dot = document.querySelector('.cursor-dot');
+  const circle = document.querySelector('.cursor-circle');
+
+  if (window.matchMedia("(pointer: fine)").matches) {
+    gsap.set(dot, { xPercent: -50, yPercent: -50 });
+    gsap.set(circle, { xPercent: -50, yPercent: -50 });
+
+    window.addEventListener('mousemove', e => {
+      gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.1 });
+      gsap.to(circle, { x: e.clientX, y: e.clientY, duration: 0.3 });
+    });
+
+    const hoverables = document.querySelectorAll('a, button, .panel, .brand-card');
+    hoverables.forEach(el => {
+      el.addEventListener('mouseenter', () => circle.classList.add('active'));
+      el.addEventListener('mouseleave', () => circle.classList.remove('active'));
+    });
+  }
+}
+
+/* =========================================================
+   NAVBAR SCROLL LOGIC
+========================================================= */
+{
+  const nav = document.querySelector('.nav');
+  const hero = document.querySelector('.hero');
+  let isScrollingTimer;
+
+  window.addEventListener('scroll', () => {
+    const heroHeight = hero.offsetHeight;
+    const scrollY = window.scrollY;
+
+    // If we are past the hero section
+    if (scrollY > heroHeight) {
+      nav.classList.add('scrolled'); // Solid background
+      nav.classList.add('nav-hidden'); // Hide while scrolling
+      
+      // Detect stop
+      clearTimeout(isScrollingTimer);
+      isScrollingTimer = setTimeout(() => {
+        nav.classList.remove('nav-hidden'); // Show when stopped
+      }, 200);
+    } else {
+      // Inside hero: always visible, transparent
+      nav.classList.remove('scrolled');
+      nav.classList.remove('nav-hidden');
+    }
+  });
+}
+
+/* =========================================================
+   SIDEBAR LOGIC
+========================================================= */
+{
+  const body = document.body;
+  const menuBtn = document.getElementById("menuBtn");
+  const sidebar = document.getElementById("sidebar");
+  const closeBtn = document.getElementById("closeBtn");
+  const backdrop = document.getElementById("backdrop");
+
+  const openSidebar = () => {
+    sidebar.classList.add("open");
+    backdrop.classList.add("show");
+    body.classList.add("no-scroll");
+  };
+
+  const closeSidebar = () => {
+    sidebar.classList.remove("open");
+    backdrop.classList.remove("show");
+    body.classList.remove("no-scroll");
+  };
+
+  menuBtn.onclick = openSidebar;
+  closeBtn.onclick = closeSidebar;
+  backdrop.onclick = closeSidebar;
+}
+
+/* =========================================================
+   HERO TEXT ROTATION
+========================================================= */
+{
+  const heroTitle = document.getElementById("heroTitle");
+  const heroSubtitle = document.getElementById("heroSubtitle");
+
+  const heroTexts = [
+    { title:"Bold Ideas. Clean Design.", subtitle:"A simple, modern hero with video background. " },
+    { title:"Design That Converts.", subtitle:"Focused on clarity, impact, and usability." },
+    { title:"Build Brands That Last.", subtitle:"Visual identity crafted with precision." }
+  ];
+
+  let hi = 0;
+  setInterval(()=>{
+    hi = (hi + 1) % heroTexts.length;
+    heroTitle.textContent = heroTexts[hi].title;
+    heroSubtitle.textContent = heroTexts[hi].subtitle;
+  },4000);
+}
+
+/* =========================================================
+   ABOUT ANIMATIONS
+========================================================= */
+{
+  /* CLOUDS */
+  gsap.to(".cloud-1",{ x:window.innerWidth+600, duration:80, repeat:-1, ease:"linear" });
+  gsap.to(".cloud-2",{ x:window.innerWidth+700, duration:120, repeat:-1, ease:"linear" });
+  gsap.to(".cloud-3",{ x:window.innerWidth+500, duration:100, repeat:-1, ease:"linear" });
+
+  /* SPLIT TEXT */
+  const split = document.querySelector(".split-text");
+  const words = split.innerText.split(" ");
+  split.innerHTML = words.map(w=>`<span class="word">${w}</span>`).join(" ");
+  gsap.set(".word",{ y:80, opacity:0 });
+
+  const tl = gsap.timeline({
+    scrollTrigger:{
+      trigger:".about-section",
+      start:"top 70%"
+    }
+  });
+
+  tl.from(".about-badge",{ y:30, opacity:0, duration:.7 })
+    .to(".word",{ y:0, opacity:1, stagger:.08, duration:1, ease:"power4.out" },"-=0.2")
+    .from(".about-description",{ y:40, opacity:0, duration:.9 },"-=0.5")
+    .from(".about-btn",{ y:20, opacity:0, duration:.6 },"-=0.4");
+}
+
+/* =========================================================
+  SLIDE DATA (ALL 3 CATEGORIES)
+========================================================= */
+const SLIDE_DATA={
+  wayfinding:[
+    {title:"Smart Navigation",image:"https://images.unsplash.com/photo-1526481280695-3c687fd643ed"},
+    {title:"Digital Signage",image:"https://images.unsplash.com/photo-1492724441997-5dc865305da7"},
+    {title:"Interactive Maps",image:"https://images.unsplash.com/photo-1518770660439-4636190af475"}
+  ],
+  experiential:[
+    {title:"Immersive Spaces",image:"https://images.unsplash.com/photo-1520975958225-3f61f107b07f"},
+    {title:"XR Showrooms",image:"https://images.unsplash.com/photo-1545239351-1141bd82e8a6"}
+  ],
+  art:[
+    {title:"Digital Sculptures",image:"https://images.unsplash.com/photo-1545239351-1141bd82e8a6"},
+    {title:"Light Installations",image:"https://images.unsplash.com/photo-1518770660439-4636190af475"},
+    {title:"Public Art",image:"https://images.unsplash.com/photo-1492724441997-5dc865305da7"}
+  ]
+};
+
+/* =========================================================
+  STACK CARD HOVER LOGIC (SAME AS BEFORE)
+========================================================= */
+{
+const panelSlider=document.getElementById("panelSlider");
+const panels=[...panelSlider.querySelectorAll(".panel")];
+const OVERLAP=46; // matches --s2-overlap
+
+function layout(index,animate=true){
+  const W=panelSlider.clientWidth;
+  const small=260;
+  const big=W - small*2 + OVERLAP*2;
+  const widths=[small,small,small];
+  widths[index]=big;
+
+  let x=0;
+
+  panels.forEach((p,i)=>{
+    if(window.innerWidth <= 768) return;
+
+    const bg=p.querySelector(".panel-bg");
+    const title=p.querySelector(".panel-title");
+
+    animate
+      ? gsap.to(p,{width:widths[i],x,duration:.6,ease:"power4.out"})
+      : gsap.set(p,{width:widths[i],x});
+
+    gsap.to(bg,{
+      opacity:i===index?.6:.28,
+      filter:i===index?"blur(0px)":"blur(6px)",
+      scale:i===index?1.03:1.08,
+      duration:.45
+    });
+
+    gsap.to(title,{
+      scale:i===index?1:0.78,
+      letterSpacing:i===index?".12em":".28em",
+      opacity:i===index?1:.75,
+      duration:.45
+    });
+
+    x+=widths[i]-OVERLAP;
+  });
+}
+
+layout(0,false);
+panels.forEach((p,i)=>p.addEventListener("mouseenter",()=>layout(i,true)));
+panelSlider.addEventListener("mouseleave",()=>layout(0,true));
+
+window.addEventListener('resize', () => {
+  if(window.innerWidth > 768) layout(0, false);
+});
+}
+
+/* =========================================================
+  SLIDER LOGIC
+========================================================= */
+{
+const categorySection=document.getElementById("categorySection");
+const slider=document.getElementById("slider");
+const counter=document.getElementById("counter");
+const panels=[...document.querySelectorAll(".panel")]; // re-select for this scope
+
+panels.forEach(panel=>{
+  panel.addEventListener("click",()=>{
+    const cat=panel.dataset.category;
+    buildSlides(cat);
+    categorySection.style.display="block";
+    
+    // Refresh ScrollTrigger after display change
+    ScrollTrigger.refresh();
+    
+    // Use Lenis for smooth scroll instead of native scrollIntoView to prevent lag
+    if(window.lenis) {
+      window.lenis.scrollTo('#categorySection', { offset: 0, duration: 1.5 });
+    } else {
+      categorySection.scrollIntoView({behavior:"smooth"});
+    }
+    
+    setTimeout(initScroll,120);
+  });
+});
+
+function buildSlides(cat){
+  slider.innerHTML="";
+  const slides=SLIDE_DATA[cat];
+  slides.forEach(s=>{
+    const d=document.createElement("div");
+    d.className="slide";
+    d.innerHTML=`<img src="${s.image}"><div class="slide-label">${s.title}</div>`;
+    slider.appendChild(d);
+  });
+  counter.textContent=`1 | ${slides.length}`;
+}
+
+function initScroll(){
+  // Only kill the specific slider trigger if it exists
+  if (window.sliderST) window.sliderST.kill();
+
+  const slides=[...slider.children];
+  if(!slides.length) return;
+  
+  const sliderFrame = document.querySelector('.slider-frame');
+
+  // Helper to calculate scroll amount dynamically
+  const getScrollAmount = () => {
+    return slider.scrollWidth - sliderFrame.clientWidth;
+  };
+
+  if (getScrollAmount() <= 0) return;
+
+  const anim = gsap.to(slider,{
+    x: () => -getScrollAmount(),
+    ease:"none",
+    scrollTrigger:{
+      trigger:"#categorySection",
+      start:"top top",
+      end: () => `+=${getScrollAmount()}`,
+      pin:true,
+      scrub:1,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+      onUpdate:self=>{
+        const i=Math.round(self.progress*(slides.length-1));
+        counter.textContent=`${i+1} | ${slides.length}`;
+      }
+    }
+  });
+  
+  window.sliderST = anim.scrollTrigger;
+}
+}
+
+/* =========================================================
+   BRAND SECTION LOGIC
+========================================================= */
+{
+  const brands = [
+    { name: "Walmart", logo: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Walmart_logo.svg", bg: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a" },
+    { name: "BOSS", logo: "https://upload.wikimedia.org/wikipedia/commons/6/6b/Hugo_Boss_logo.svg", bg: "https://images.unsplash.com/photo-1521335629791-ce4aec67dd47" },
+    { name: "Utah Jazz", logo: "https://upload.wikimedia.org/wikipedia/en/3/3a/Utah_Jazz_logo_2022.svg", bg: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2" },
+    { name: "Vogue", logo: "https://upload.wikimedia.org/wikipedia/commons/8/8f/Vogue_logo.svg", bg: "https://images.unsplash.com/photo-1492707892479-7bc8d5a4ee93" },
+    { name: "BMW", logo: "https://upload.wikimedia.org/wikipedia/commons/4/44/BMW.svg", bg: "https://images.unsplash.com/photo-1511919884226-fd3cad34687c" },
+    { name: "McDonalds", logo: "https://upload.wikimedia.org/wikipedia/commons/5/5e/McDonald%27s_Logo.svg", bg: "https://images.unsplash.com/photo-1550547660-d9450f859349" },
+    { name: "Elle", logo: "https://upload.wikimedia.org/wikipedia/commons/8/8d/Elle_Logo.svg", bg: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f" },
+    { name: "GameStop", logo: "https://upload.wikimedia.org/wikipedia/commons/0/0b/GameStop_logo.svg", bg: "https://images.unsplash.com/photo-1607082349566-187342175e2f" },
+    { name: "Givenchy", logo: "https://upload.wikimedia.org/wikipedia/commons/5/5c/Givenchy_logo.svg", bg: "https://images.unsplash.com/photo-1520975916090-3105956dac38" },
+    { name: "Hublot", logo: "https://upload.wikimedia.org/wikipedia/commons/7/73/Hublot_logo.svg", bg: "https://images.unsplash.com/photo-1518544888253-2fba4f57d8d3" }
+  ];
+
+  const grid = document.getElementById("brandGrid");
+  const bgContainer = document.getElementById("bgContainer");
+  const initialBg = document.getElementById("initialBg");
+
+  brands.forEach((b, i) => {
+    const bg = document.createElement("div");
+    bg.className = "bg-layer";
+    bg.dataset.index = i;
+    bg.style.backgroundImage = `url(${b.bg})`;
+    bgContainer.appendChild(bg);
+  });
+
+  brands.forEach((b, i) => {
+    const card = document.createElement("div");
+    card.className = "brand-card";
+    card.dataset.index = i;
+    card.innerHTML = `<img src="${b.logo}" alt="${b.name}">`;
+    grid.appendChild(card);
+  });
+
+  const cards = document.querySelectorAll(".brand-card");
+  const bgs = document.querySelectorAll("#bgContainer .bg-layer");
+
+  function resetToInitial() {
+    cards.forEach(c => c.classList.remove("active"));
+    bgs.forEach(bg => bg.classList.remove("active"));
+    initialBg.classList.add("active");
+  }
+
+  cards.forEach(card => {
+    card.addEventListener("mouseenter", () => {
+      const i = card.dataset.index;
+      initialBg.classList.remove("active");
+      cards.forEach(c => c.classList.remove("active"));
+      bgs.forEach(bg => bg.classList.remove("active"));
+      card.classList.add("active");
+      bgs[i].classList.add("active");
+    });
+  });
+
+  grid.addEventListener("mouseleave", resetToInitial);
+
+  /* ANIMATIONS */
+  gsap.from(".brand-tagline, .brand-title", {
+    opacity: 0,
+    y: 40,
+    duration: 1.2,
+    stagger: 0.15,
+    ease: "power3.out",
+    scrollTrigger: {
+      trigger: ".brand-section",
+      start: "top 80%"
+    }
+  });
+
+  gsap.from(".animate-text", {
+    scrollTrigger: {
+      trigger: ".ssd-footer",
+      start: "top 80%"
+    },
+    y: 40,
+    opacity: 0,
+    duration: 1,
+    stagger: 0.2,
+    ease: "power3.out"
+  });
+
+  gsap.from(".animate-link", {
+    scrollTrigger: {
+      trigger: ".ssd-footer",
+      start: "top 80%"
+    },
+    y: 30,
+    opacity: 0,
+    duration: 0.8,
+    stagger: 0.15,
+    ease: "power3.out"
+  });
+}
+</script>
+
+</body>
+</html>
